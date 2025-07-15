@@ -59,7 +59,6 @@ button#continueBtn:hover {
   visibility: hidden;
 }
 
-/* Resend container styling */
 .resend-container {
   margin-top: 1.5rem;
   display: flex;
@@ -83,7 +82,9 @@ button#sendCodeBtn:disabled {
   cursor: not-allowed;
 }
 
+/* hide timer until JS shows it */
 .timer {
+  display: none;
   font-family: monospace;
   font-size: 0.9rem;
   color: #333;
