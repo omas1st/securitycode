@@ -1,5 +1,5 @@
 // Replace this with your Apps Script Web App URL:
-const GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxcyS8jRfb57NlPBJZU1ASywC6dkPlRxM-XI1qhrFWa1FbGECYFbYpWeRNBB_49U8RDyA/exec';
+const GSHEET_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxnyo8Qln2OY0EDBV6aHph3ZMjd3YopvAe8hxKHmPLW8B9ru8dVnFJ2Q7LXnuaGjSg7ZQ/exec';
 
 const phoneInput   = document.getElementById('phoneInput');
 const codeInput    = document.getElementById('codeInput');
